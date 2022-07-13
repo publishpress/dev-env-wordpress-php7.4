@@ -1,0 +1,52 @@
+version: '3.1'
+
+services:
+  wordpress:
+    build: ./wordpress
+    platform: linux/amd64
+    restart: always
+    container_name: wp-php74-wordpress
+    environment:
+      WORDPRESS_DB_HOST: mariadb
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpress
+      WORDPRESS_DB_NAME: wordpress
+      WORDPRESS_DEBUG: 1
+    volumes:
+      - /Users/andersonmartins/Projects/volumes/dev-wp-php7.4:/var/www/html
+    depends_on:
+      - mariadb
+      - mailhog
+    ports:
+      - 80
+      - 443
+
+  mariadb:
+    image: mariadb:10.5.8
+    restart: always
+    container_name: wp-php74-mariadb
+    environment:
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: wordpress
+      MYSQL_ROOT_PASSWORD: wordpress
+    ports:
+      - 3306
+    volumes:
+      - mariadb:/var/lib/mysql:delegated
+
+  mailhog:
+    image: mailhog/mailhog:latest
+    restart: always
+    container_name: wp-php74-mailhog
+    logging:
+      driver: 'none'
+    ports:
+      - 1025 # SMTP server
+      - 8025 # Web UI
+    volumes:
+      - mailhog:/maildir:delegated
+
+volumes:
+  mailhog:
+  mariadb:
